@@ -1,0 +1,43 @@
+.number-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    column-gap: 8px;
+    row-gap: 8px;
+    justify-content: center;
+}
+
+.number-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #ddd;
+    background-color: #ebe8cc;
+}
+
+.number-card .key {
+    font-size: 80%;
+}
+
+.number-card .value {
+    font-size: 3rem;
+}
+
+@media (max-width: 1400px) {
+    .number-cards {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media (max-width: 800px) {
+    .number-card .value {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .number-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+}

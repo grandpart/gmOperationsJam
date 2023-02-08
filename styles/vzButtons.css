@@ -1,0 +1,213 @@
+
+.pure-button {
+    /* Structure */
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    line-height: normal;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+    -webkit-user-drag: none;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+/* Firefox: Get rid of the inner focus border */
+.pure-button::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+}
+
+/* Inherit .pure-g styles */
+.pure-button-group {
+    letter-spacing: -0.31em; /* Webkit: collapse white-space between units */
+    text-rendering: optimizespeed; /* Webkit: fixes text-rendering: optimizeLegibility */
+    display: flex;
+    flex-direction: row;
+}
+
+.opera-only :-o-prefocus,
+.pure-button-group {
+    word-spacing: -0.43em;
+}
+
+.pure-button-group .pure-button {
+    letter-spacing: normal;
+    word-spacing: normal;
+    vertical-align: top;
+    text-rendering: auto;
+}
+
+.pure-button {
+    font-family: inherit;
+    font-size: 100%;
+    padding: 0.5em 1em;
+    color: rgba(0, 0, 0, 0.80);
+    border: none rgba(0, 0, 0, 0);
+    background-color: #E6E6E6;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.pure-button.medium {
+    font-size: 80%;
+}
+
+.pure-button.small {
+    font-size: 70%;
+    padding: 2px 4px;
+}
+
+.pure-button.bold {
+    font-weight: bold;
+}
+
+.pure-button-hover,
+.pure-button:hover,
+.pure-button:focus {
+    background-image: linear-gradient(transparent, rgba(0,0,0, 0.05) 40%, rgba(0,0,0, 0.10));
+}
+.pure-button:focus {
+    outline: 0;
+}
+.pure-button-active,
+.pure-button:active {
+    box-shadow: 0 0 0 1px rgba(0,0,0, 0.15) inset, 0 0 6px rgba(0,0,0, 0.20) inset;
+    border-color: #000;
+}
+
+.pure-button[disabled],
+.pure-button-disabled,
+.pure-button-disabled:hover,
+.pure-button-disabled:focus,
+.pure-button-disabled:active {
+    border: none;
+    background-image: none;
+    opacity: 0.40;
+    cursor: not-allowed;
+    box-shadow: none;
+    pointer-events: none;
+}
+
+.pure-button-hidden {
+    display: none;
+}
+
+.pure-button-primary,
+.pure-button-selected,
+a.pure-button-primary,
+a.pure-button-selected {
+    background-color: rgb(0, 120, 231);
+    color: #fff;
+}
+
+/* Button Groups */
+.pure-button-group .pure-button {
+    margin: 0;
+    border-radius: 0;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.pure-button-group .pure-button:first-child {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+.pure-button-group .pure-button:last-child {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-right: none;
+}
+
+.pure-button img {
+    padding-right: 1em;
+}
+
+.pure-button::before {
+    padding-right: 5px;
+}
+
+.pure-button.insert {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #c4dbe9;
+}
+.pure-button.insert::before {
+    content: "\021AA";
+    font-size: medium;
+}
+
+.pure-button.update {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #c4e9d0;
+}
+.pure-button.update::before {
+    content: "\0270e";
+    font-size: medium;
+}
+
+.pure-button.edit {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #c4e9d0;
+}
+.pure-button.edit::before {
+    content: "\0270e";
+    font-size: medium;
+}
+
+.pure-button.delete {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #e9c4c4;
+}
+.pure-button.delete::before {
+    content: "\02702";
+    font-size: medium;
+}
+
+.pure-button.cancel {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #e9c4c4;
+}
+.pure-button.cancel::before {
+    content: "\0274C";
+    font-size: medium;
+}
+
+.pure-button.reference {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #c4e9e9;
+}
+.pure-button.reference::before {
+    content: "\01F4DA";
+    font-size: medium;
+}
+
+.pure-button.execute {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #c4e9d0;
+}
+.pure-button.execute::before {
+    content: "\02699";
+    font-size: medium;
+}
+
+.pure-button.expand {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #e4e0aa;
+}
+.pure-button.expand::before {
+    color: rgb(71, 146, 81);
+    content: "\25BC";
+    font-size: medium;
+}
+
+.pure-button.collapse {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: #baebe8;
+}
+.pure-button.collapse::before {
+    color: rgb(105, 143, 201);
+    content: "\25b6";
+    font-size: medium;
+}

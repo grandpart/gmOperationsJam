@@ -1,0 +1,113 @@
+.list {
+    width: 100%;
+    margin: 8px 0 12px 0;
+}
+
+.list .row.default {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr 130px;
+    grid-template-rows: auto;
+    grid-template-areas: 
+        "object action";
+    border-bottom: 1px solid #aaa;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.list .row.default.select {
+    grid-template-columns: 18px 1fr 130px;
+    grid-template-areas: 
+        "select object action";
+}
+
+.list .row:hover {
+    border-color: #aaa;
+    background-color: #f0f0f0; 
+}
+
+.list .row.default .select {
+    grid-area: select;
+}
+
+.list .row.default .object {
+    grid-area: object;
+}
+
+.list .row.default .action {
+    grid-area: action;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.list .row.default .object {
+    font-size: 0.8em;
+    border-left: 3px solid rgb(212, 212, 212);
+    padding: 0 8px 0 8px;
+    overflow-wrap: anywhere;
+}
+
+.list .row.default .object span {
+    margin: 0 8px;
+}
+
+.list .row.default .object span.italic {
+    font-style: italic;
+}
+
+.list .row.default .object span.bold {
+    font-weight: bold;
+}
+
+.list .row.default .object span.strong {
+    font-weight: bold;
+    color:teal;
+}
+
+.list .row.default .object span a {
+    text-decoration: none !important;
+    color:rgb(51, 133, 189)
+}
+
+.list .row.default .due {
+    grid-area: due;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 12px 0 0;
+}
+
+.list .row.default .place {
+    grid-area: place;
+    text-align: left;
+    padding-right: 12px;
+    text-overflow: ellipsis;
+}
+
+.list .row.toggle {
+    width: 100%;
+    padding: 8px 0 8px 22px;
+    text-indent: -22px ;
+    font-family: Calibri, sans-serif;
+    font-size: 12pt;
+}
+
+@media screen and (max-width: 950px) {
+    .list.default .row {
+        width: 98%;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-template-areas: 
+            "object"
+            "action";
+    }
+    
+    .list .row.default .action {
+        margin-top: 4px;
+    }
+
+    .list .row.default .action button {
+        width: 50%;
+    }
+
+}

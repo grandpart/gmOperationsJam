@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Grandmark Logon</title>
+        <meta name="description" content="Logon to Grandmark's Operational Systems">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../styles/global.css">
+        <link rel="stylesheet" href="../styles/nav.css">
+        <link rel="stylesheet" href="../styles/pages.css">
+        <link rel="stylesheet" href="../styles/vzPopupDialog.css">
+        
+        <script src="../scripts/vzFetchPromise.js"></script> 
+        <script src="../scripts/vzUtils.js"></script> 
+        <script src="../scripts/vzPopupDialog.js"></script> 
+ 
+    </head>
+    <body>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+        <!-- Short-wide title -->
+        <header>
+            <div class="left"></div>
+            <div class="center">
+                <div class="nav-links">
+                    <a class="nav-item" href="../index.html"><span aria-hidden="true">&#x1F3E0</span>Home</a>
+                    <a class="nav-item" href="index.html"><span aria-hidden="true">&#x1F680</span>Launchpad</a>
+                    <a class="nav-item" href="../contact.html"><span aria-hidden="true">&#x260E</span>Contact</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logo">
+                    <img src="../images/logo.svg" height="64px" width="64px"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- content -->
+        <main>
+            <div class="hero">
+                <div class=title>
+                    <img src="../images/ze_150_logo.svg" alt="Zephry Login"/>
+                    <h1>Login</h1>
+                </div>
+            </div>
+            <div class="login">
+                <p>Please enter your email address and password in the fields provided:</p>
+                <form id="loginform">
+                    <div class="email">
+                        <label for="email">User ID</label>
+                        <input type="text" id="userid" name="userid" />
+                    </div>
+                    <div class="token">
+                        <label for="token">Password</label>
+                        <input type="password" id="token" name="token" />
+                    </div>
+                    <input type="hidden" id="passthru" name="passthru" />
+                    <div class="control">
+                        <button type="button" id="btnCancel" class="cancel">
+                            <img src="../images/ico-xmark.svg" height="24px" width="24px"/>
+                            <span>Cancel</span>
+                        </button>
+                        <button type="submit" class="submit">
+                            <img src="../images/ico-check.svg" height="24px" width="24px"/>
+                            <span>Submit</span>
+                        </button>
+                    </div>
+                </form>
+                <p>If you have forgotten your password, <a href="forgot.html">click here to change your password now</a>.</p>
+                <p>If you have never created an account at Zephry before, <a href="register.html">click here to register now</a>.</p>
+            </div>
+        </main>
+        <footer>
+
+        </footer>
+
+        <script>
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // attach the form
+            let vForm = document.getElementById( "loginform" );
+            // A function to POST login information to a login endpoint
+            function sendData() {
+                // Bind form data (inputs)
+                var vFormObject = Object.fromEntries(new FormData(vForm));
+                // Post login
+                vzFetchJson("/logon", "POST", JSON.stringify(vFormObject))
+                .then(function(data) {
+                    if (urlParams.has("passthru")) {
+                        document.getElementById("passthru").value;
+                        window.location = urlParams.get("passthru");
+                    }
+                    else {
+                        window.location = "../index.html";
+                    }
+                })
+                .catch(function(error) {
+                    vPopupDialog.open({modal:true, type:"error", message:error});
+                }) 
+            }
+            // Handle form submit event
+            vForm.addEventListener("submit", function(e) {
+                e.preventDefault();
+                sendData();
+            });
+            // Handle cancel event
+            document.getElementById("btnCancel").addEventListener("click", function(e) {
+                window.location = "/";
+            });
+            // Set the passthru value from the url query
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has("passthru")) {
+                document.getElementById("passthru").value = urlParams.get("passthru");
+            }
+        </script>
+
+    </body>
+</html>

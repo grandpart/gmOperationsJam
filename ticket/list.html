@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Ticket List</title>
+        <meta name="description" content="Manage Tickets">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../../styles/global.css">
+        <link rel="stylesheet" href="../../styles/vzButtons.css">
+        <link rel="stylesheet" href="../../styles/nav.css">
+        <link rel="stylesheet" href="../../styles/pages.css">
+        <link rel="stylesheet" href="../../styles/vzForms.css">
+        <link rel="stylesheet" href="../../styles/vzBanner.css">
+        <link rel="stylesheet" href="../../styles/vzList.css">
+        <link rel="stylesheet" href="../../styles/vzLoader.css">
+        <link rel="stylesheet" href="../../styles/vzPopupDialog.css">
+        
+        <script src="../../libraries/d3.min.js"></script> 
+        <script src="../../scripts/vzUtils.js"></script> 
+        <script src="../../scripts/vzFetchPromise.js"></script> 
+        <script src="../../scripts/vzBannerData.js"></script>
+        <script src="../../scripts/vzBanner.js"></script>
+        <script src="../../scripts/vzFooter.js"></script>
+        <script src="../../scripts/vzLoader.js"></script>
+        <script src="../../scripts/vzPopupDialog.js"></script>
+        <script src="../../scripts/vzList.js"></script>
+
+    </head>
+    <body>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+
+        <header id="header"></div></header>
+
+        <main>
+            <div class="content">
+                
+                <div class="nav-links">
+                    <a class="nav-item" href="../index.html">Home</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item" href="index.html">Tickets</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item active" href="#">List</a>
+                </div>
+                <h1>Ticket List</h1>
+                <p>Manage the ticket list.</p>
+                    
+                <div class="pure-button-group" role="group" aria-label="Database Control">
+                    <button type="button" id="btnAdd" class="pure-button medium bold insert">
+                        <span>Add a ticket </span>
+                    </button>                 
+                </div>
+                <form id="form" novalidate >
+                    <div class="inputlist">
+                        <div class="labelwrapper required">
+                            <label for="inpFind">Find</label>
+                        </div>
+                        <div class="inputwrapper">
+                            <input type="text" id="inpFind" name="inpFind" />
+                        </div>
+                            
+                    </div>
+                </form>
+                <div class="list ticketlist" id="ticketlist"></div>
+            </div>
+        </main>
+
+        <footer id="footer"></footer>
+
+        <script>
+            // Header
+            vzBanner({
+                docElement: "#header",
+                title: "Torq",
+                url: "url",
+                caption: "caption",
+                children: "children"}).update(vzBannerData);
+            // Footer
+            vzFooter({docElement: "#footer"})
+            // Loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // Popup
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // Bind button events
+            document.getElementById("btnAdd").addEventListener("click", function(e) {
+                window.location = `create.html`;
+            });
+            // bind find event            
+            function tckFind(aString) {
+                // Don't perform a search for argument length less than 2 characters
+                if (aString === null || aString.length < 2) {
+                    return;
+                }
+                vTreelist.find(aString);
+            }
+            document.getElementById("inpFind").addEventListener("input", function(e) {
+                vTreelist.clearfind();
+                tckFind(this.value)
+            });
+            // reference a list
+            let vList=vzList({
+                DocElement: "#ticketlist",
+                Object: "ticket",
+                Key: "tckkey",
+                Search: "tckname",
+                Actions: ["edit", "delete"],
+                OnFormat: formatObject,
+                OnEvent: rowEvent
+            });
+            // The list callback formatting function
+            function formatObject(d) {
+                let vText = `<span class="${d.TprClass}">${d.TckStatus}</span>`;
+                vText += `<span>${d.TckDescription}</span>`;
+                vText += `<span class=" ${d.TprClass}">Priority: ${d.TprName}</span>`;
+                vText += `<span class=" ${d.TtpClass}">Type: ${d.TtpName}</span>`;
+                vText += `<span>for ${d.OrgName}</span>`;
+                vText += `<span>raised by ${d.UsrNameSrc}</span>`;
+                vText += `<span>allocated to ${d.UsrNameTgt}</span>`;
+                vText += `<span>raised on ${d.TckDateOpen}</span>`;
+                vText += `<span>actioned on ${d.TckDateAction}</span>`;
+                vText += `<span>closed on ${d.TckDateClose}</span>`;
+                vText += `<span>effort (hrs): ${d.TckHoursRequired}</span>`;
+                return vText;
+            }
+            // Handle a row event (like a row click)
+            function rowEvent(aEvent) {
+                switch(aEvent.event) {
+                    case "select": 
+                        window.location = `#`;
+                        break;
+                    case "edit": 
+                        window.location = `update.html?tckkey=${aEvent.data.TckKey}`;
+                        break;
+                    case "delete": 
+                        window.location = `delete.html?tckkey=${aEvent.data.TckKey}`;
+                        break;
+                    default:
+                        vPopupDialog.open({modal: false, type: "info", message: {title: "Ticket Action", status: "0", message:`Unknown action '${aEvent.event}'`}});
+                }
+            }
+            // render a ticket list 
+            function renderList(aData) {
+                vList.update(aData.List);
+            }
+            // load a ticket list
+            function loadList() {
+                vLoader.start("Please be patient. Loading ticket...");
+                vzFetchJson("/ticket", "GET")
+                .then(function(data) {
+                    renderList(data);
+                    vLoader.stop();
+                })
+                .catch((error) => {
+                    vLoader.stop();
+                    if (error.Status === 401) {
+                        //window.location = "/account/login.html?passthru=/ticket/list.html"
+                    } else {
+                        vPopupDialog.open({modal:true, content: error});
+                    };
+                }) 
+            }
+            // initiate a ticket load
+            loadList()
+        </script>
+    </body>
+</html>

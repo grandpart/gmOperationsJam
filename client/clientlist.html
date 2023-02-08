@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Client List</title>
+        <meta name="description" content="Manage Clients">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../styles/global.css">
+        <link rel="stylesheet" href="../styles/vzButtons.css">
+        <link rel="stylesheet" href="../styles/nav.css">
+        <link rel="stylesheet" href="../styles/pages.css">
+        <link rel="stylesheet" href="../styles/vzTreelist.css">
+        <link rel="stylesheet" href="../styles/vzDragdialog.css">
+        <link rel="stylesheet" href="../styles/vzLoader.css">
+        <link rel="stylesheet" href="../styles/vzPopupDialog.css">
+        
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <!-- <script src="../libraries/d3.min.js"></script>  -->
+        <script src="../scripts/vzUtils.js"></script> 
+        <script src="../scripts/vzLoader.js"></script> 
+        <script src="../scripts/vzFetchPromise.js"></script> 
+        <script src="../scripts/vzPopupDialog.js"></script> 
+        <script src="../scripts/vzTreelist.js"></script> 
+        
+
+    </head>
+    <body style=position:relative;>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+
+        <header>
+            <div class="left"></div>
+            <div class="center">
+                <div class="nav-links">
+                    <a class="nav-item" href="../index.html"><span aria-hidden="true">&#x1F3E0</span>Home</a>
+                    <a class="nav-item" href="../cams.html"><span aria-hidden="true">&#x1f50e</span>CAMS</a>
+                    <a class="nav-item active" href="#" id="nav-client"><span aria-hidden="true">&#x1F3DB</span>Clients</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logo">
+                    <img src="../images/logo.svg" height="64px" width="64px"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- content -->
+        <main>
+            <div class="content">
+                <div id="candidateheader" class="candidate-header"></div>
+                <h1>Client List</h1>
+                <p>Manage the client tree. Expand/Collapse all. Find in tree. Edit tree.</p>
+                    
+                <div class="pure-button-group" role="group" aria-label="Database Control">
+                    <button type="button" id="btnAdd" class="pure-button medium bold insert">
+                        <span>Add a top-level client</span>
+                    </button>
+                    <button type="button" id="btnExpand" class="pure-button medium expand">
+                        <span>Expand All</span>
+                    </button>
+                    <button type="button" id="btnCollapse" class="pure-button medium collapse">
+                        <span>Collapse All</span>
+                    </button>                    
+                </div>
+                <form id="form" novalidate >
+                    <div class="inputlist">
+                        <div class="labelwrapper required">
+                            <label for="inpFind">Find</label>
+                        </div>
+                        <div class="inputwrapper">
+                            <input type="text" id="inpFind" name="inpFind" />
+                        </div>
+                            
+                    </div>
+                </form>
+                <div class="treelist clientlist" id="clientlist"></div>
+            </div>
+        </main>
+        <footer>
+            <span>Copyright &copy; 2021 Zephry (Pty) Limited</span>
+        </footer>
+
+        <script>
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // Bind button events
+            document.getElementById("btnAdd").addEventListener("click", function(e) {
+                window.location = `clientcreate.html?parent=0`;
+            });
+            document.getElementById("btnExpand").addEventListener("click", function(e) {
+                vTreelist.expandall();
+            });
+            document.getElementById("btnCollapse").addEventListener("click", function(e) {
+                vTreelist.collapseall();
+            });
+            // bind find event            
+            function clnFind(aString) {
+                // Don't perform a search for argument length less than 2 characters
+                if (aString === null || aString.length < 2) {
+                    return;
+                }
+                vTreelist.find(aString);
+            }
+            document.getElementById("inpFind").addEventListener("input", function(e) {
+                vTreelist.clearfind();
+                clnFind(this.value)
+            });
+
+
+            // reference a list
+            let vTreelist=vzTreelist({
+                DocElement: "#clientlist",
+                Object: "client",
+                Key: "clnkey",
+                Children: "children",
+                Search: "name",
+                OnFormat: formatObject,
+                OnEvent: rowEvent
+            });
+            // The list callback formatting function
+            function formatObject(d) {
+                let vText = `<span class="stop bold">${d.name}</span>`;
+                vText += `<span class="stop"> (${d.clnkey} - ${d.parent})</span>`;
+                return vText;
+            }
+            // Handle a row event (like a row click)
+            function rowEvent(aEvent) {
+                switch(aEvent.event) {
+                    case "select": 
+                        window.location = `dash.html?clnkey=${aEvent.data.clnkey}`;
+                        break;
+                    case "add": 
+                        window.location = `clientcreate.html?parent=${aEvent.data.clnkey}`;
+                        break;
+                    case "edit": 
+                        window.location = `clientupdate.html?clnkey=${aEvent.data.clnkey}`;
+                        break;
+                    case "delete": 
+                        window.location = `clientdelete.html?clnkey=${aEvent.data.clnkey}`;
+                        break;
+                    default:
+                    vPopupDialog.open({modal: false, type: "info", message: {title: "Client Action", status: "0", message:`Unknown action '${aEvent.event}'`}});
+                }
+            }
+            // render a client list 
+            function renderList(aData) {
+                vTreelist.update(aData.list);
+            }
+            // load a client list
+            function loadList() {
+                vLoader.start("Please be patient. Loading clients...");
+                vzFetchJson("/clients", "GET")
+                .then(function(data) {
+                    renderList(data);
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = "/account/login.html?passthru=../clients/clientlist.html"
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                }) 
+            }
+            // initiate a client load
+            loadList()
+        </script>
+    </body>
+</html>

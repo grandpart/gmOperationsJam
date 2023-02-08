@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Grandmark Home</title>
+        <meta name="description" content="Grandmark Home">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="styles/global.css">
+        <link rel="stylesheet" href="styles/vzButtons.css">
+        <link rel="stylesheet" href="styles/nav.css">
+        <link rel="stylesheet" href="styles/pages.css">
+        <link rel="stylesheet" href="styles/vzForms.css">
+        <link rel="stylesheet" href="styles/vzBanner.css">
+        <link rel="stylesheet" href="styles/vzLoader.css">
+        <link rel="stylesheet" href="styles/vzPopupDialog.css">
+        <link rel="stylesheet" href="../styles/vzDashboard.css">
+        <link rel="stylesheet" href="../styles/vzTiler.css">
+        
+        <script src="libraries/d3.min.js"></script> 
+        <script src="scripts/vzUtils.js"></script> 
+        <script src="scripts/vzLoader.js"></script> 
+        <script src="scripts/vzFetchPromise.js"></script> 
+        <script src="scripts/vzPopupDialog.js"></script> 
+        <script src="scripts/vzBanner.js"></script>
+        <script src="scripts/vzBannerData.js"></script>
+        <script src="scripts/vzFooter.js"></script>
+        
+    </head>
+    <body>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+        <header id="header"></div></header>
+    
+        <main>
+            <div class="content">
+                
+                <div class="dashboard">
+                    <div class="dashboard-sidebar">
+                        <span class="activator sidebar-activator"><i class="fa fa-fw"></i><span class="activator-label">Your Profile</span></span>
+                        <div class="activated sidebar-activated" id="UserProfile">
+                            <div class="dash-heading">
+                                <span class="dash-title">User Profile</span>
+                                <span class="dash-desc">Click to view</span>
+                            </div>
+                            <div class="dashcounts" id="dashcounts">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-content">
+                        <span class="activator content-activator"><i class="fa fa-fw"></i><span class="activator-label">Master Dashboard</span></span>
+                        <div class="activated content-activated">
+                            <div class="tile-group-box" id="mastergroup">
+                                <div class="group tile-group">
+                                    <div class="dash-heading">
+                                        <span class="dash-title">Master Files</span>
+                                        <span class="dash-desc">Manage the user list</span>
+                                    </div>
+                                    <div class="tiles">
+                                        <div class="tile" id="user">
+                                            <img class="accessimage" src="" />
+                                            <span class="title">User</span>
+                                            <span class="desc">Manage the user list</span>
+                                        </div>
+                                        <div class="tile" id="organization">
+                                            <img class="accessimage" src="" />
+                                            <span class="title">Organizations</span>
+                                            <span class="desc">Manage the organization</span>
+                                        </div>
+                                        <div class="tile" id="order">
+                                            <img class="accessimage" src="" />
+                                            <span class="title">Orders</span>
+                                            <span class="desc">Capture, view and manage orders</span>
+                                        </div>
+                                        <div class="tile" id="billing">
+                                            <img class="accessimage" src="" />
+                                            <span class="title">Billing</span>
+                                            <span class="desc">Execute and view billing runs for all, or for selected clients</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tile-group-box" id="mastergroup">
+                                <div class="group tile-group">
+                                    <div class="dash-heading">
+                                        <span class="dash-title">Master Files</span>
+                                        <span class="dash-desc">Manage the user list</span>
+                                    </div>
+                                    <div class="tiles">
+                                        <div class="tile" id="user">
+                                            <img class="accessimage" src="" />
+                                            <span class="title">User</span>
+                                            <span class="desc">Manage the user list</span>
+                                        </div>
+                                        <div class="tile" id="organization">
+                                            <img class="accessimage" src="" />
+                                            <span class="title">Organizations</span>
+                                            <span class="desc">Manage the organization</span>
+                                        </div>
+                                        <div class="tile" id="order">
+                                            <img class="accessimage" src="" />
+                                            <span class="title">Orders</span>
+                                            <span class="desc">Capture, view and manage orders</span>
+                                        </div>
+                                        <div class="tile" id="billing">
+                                            <img class="accessimage" src="" />
+                                            <span class="title">Billing</span>
+                                            <span class="desc">Execute and view billing runs for all, or for selected clients</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <footer id="footer"></footer>
+
+        <script src="scripts/vzActivator.js"></script>
+        <script>
+            // Header and footer  
+            vzBanner({
+                docElement: "#header",
+                title: "Torq",
+                url: "url",
+                caption: "caption",
+                children: "children"}).update(vzBannerData);                          
+            vzFooter({docElement: "#footer"})
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+
+        </script>
+    </body>
+</html>

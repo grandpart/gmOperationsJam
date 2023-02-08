@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Edit Ticket Type</title>
+        <meta name="description" content="Edit and existing Ticket Type">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../../styles/global.css">
+        <link rel="stylesheet" href="../../styles/vzButtons.css">
+        <link rel="stylesheet" href="../../styles/nav.css">
+        <link rel="stylesheet" href="../../styles/pages.css">
+        <link rel="stylesheet" href="../../styles/vzForms.css">
+        <link rel="stylesheet" href="../../styles/vzBanner.css">
+        <link rel="stylesheet" href="../../styles/vzLoader.css">
+        <link rel="stylesheet" href="../../styles/vzPopupDialog.css">
+        
+        <script src="../../libraries/d3.min.js"></script> 
+        <script src="../../scripts/vzUtils.js"></script> 
+        <script src="../../scripts/vzLoader.js"></script> 
+        <script src="../../scripts/vzFetchPromise.js"></script> 
+        <script src="../../scripts/vzPopupDialog.js"></script> 
+        <script src="../../scripts/vzBanner.js"></script>
+        <script src="../../scripts/vzBannerData.js"></script>
+        <script src="../../scripts/vzFooter.js"></script>
+        
+    </head>
+    <body>
+        <body style=position:relative;>
+            <div id="wait-overlay" style="display:none"></div>
+            <div id="wait-loader" class="waitloader"></div>
+            <div id="popup-dialog" class="popupdialog"></div>
+    
+            <header id="header"></div></header>
+    
+            <main>
+                <div class="content">
+                    
+                    <div class="nav-links">
+                        <a class="nav-item" href="../../index.html"><span aria-hidden="true">&#x25A0;</span>Home</a>
+                        <a class="nav-item" href="../index.html"><span aria-hidden="true">&gt;</span>Tickets</a>
+                        <a class="nav-item " href="list.html"><span aria-hidden="true">&gt;</span>Ticket Types</a>
+                        <a class="nav-item active" href="#"><span aria-hidden="true">&gt;</span>Edit</a>
+                    </div>
+                <h1>Edit TicketType</h1>
+                <p>Change the Ticket Type form below, and press the "Update" button to edit a ticket type.</p>
+                
+                <div class="form">
+                    <form id="form" novalidate >
+                        <div class="inputlist">
+                            <div class="labelwrapper required">
+                                <label for="ttpname">Name</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="text" id="ttpname" name="ttpname" required />
+                                <span class="error" aria-live="polite"></span>
+                            </div>
+                                
+                        </div>
+                        <div class="inputlist">
+                            <div class="labelwrapper required">
+                                <label for="ttpclass">Css Class</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="text" id="ttpclass" name="ttpclass" required />
+                                <span class="error" aria-live="polite"></span>
+                            </div>
+                                
+                        </div>
+                    </form>
+                    <div class="pure-button-group" role="group" aria-label="Database Control">
+                        <button type="button" id="btnUpdate" class="pure-button medium bold update">
+                            <span>Update</span>
+                        </button>
+                        <button type="button" id="btnCancel" class="pure-button medium cancel">
+                            <span>Cancel</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer id="footer"></footer>
+
+        <script>
+            // Header and footer  
+            vzBanner({
+                docElement: "#header",
+                title: "Torq",
+                url: "url",
+                caption: "caption",
+                children: "children"}).update(vzBannerData);                          
+            vzFooter({docElement: "#footer"})
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // Bind button cancel event
+            document.getElementById("btnCancel").addEventListener("click", function(e) {
+                window.location = `list.html`;
+            });
+            // Bind button add event
+            document.getElementById("btnUpdate").addEventListener("click", function(e) {
+                updateTicketType();
+            });
+            // Get a parent key from query params
+            let vTtpKey;
+            const params = new URLSearchParams(window.location.search);
+            params.has("ttpkey") ? vTtpKey = parseInt(params.get("ttpkey")): vTtpKey = 0;
+            
+            // Fetch an tickettpiority object
+            function fetchTicketType() {
+                // Fetch tickettpiority
+                vzFetchJson(`/ticket/type/${vTtpKey}`, "GET")
+                .then(function(data) {
+                    document.getElementById("ttpname").value = data.ttpname;
+                    document.getElementById("ttpclass").value = data.ttpclass;
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = "/account/login.html?passthru=/ticket/type/list.html"
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                })
+            }
+            fetchTicketType();
+
+            // Create an tickettpiority object
+            function updateTicketType() {
+                let vFormData = new FormData(document.getElementById( "form" ))
+                var vFormObject = Object.fromEntries(vFormData);
+                // PUT Ticket Type
+                vzFetchJson(`/ticket/type/${vTtpKey}`, "PUT", JSON.stringify(vFormObject))
+                .then(function(data) {
+                    window.location = "list.html";
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = `/account/login.html?passthru=/ticket/type/update.html?${vTtpKey}`
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                })
+            }
+        </script>
+    </body>
+</html>

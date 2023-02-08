@@ -1,0 +1,152 @@
+﻿.dashboard {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    column-gap: 8px;
+    grid-template-rows: auto;
+    background-color: rgb(255, 255, 255);
+    grid-template-areas: 
+        "sidebar content";
+}
+
+.dashboard-sidebar {
+    grid-area: sidebar;
+}
+
+.dashboard-content {
+    grid-area: content;
+}
+
+.dash-heading {
+    display: block;
+    padding: 4px;
+    margin: 0 4px;
+    /*border-radius: 5px;
+    background-color: #aaa;*/
+}
+
+.dash-heading span {
+    color: #5f5f5f;
+}
+
+.dash-heading span.dash-title {
+    display: block;
+    font-size: 22px;
+    font-weight: 300;
+    margin: 20px 0 8px 5px;
+}
+
+.dash-heading span.dash-desc {
+    display: block;
+    font-size: 12px;
+    font-weight: 300;
+    margin: 0 0 5px 5px;
+}
+
+.dashcounts {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashcounts .header.title
+{
+    font-size: 16px;
+    color: #8B8B8B;
+    font-weight: bold;
+}
+
+.dashcounts .count
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    float: left;
+    padding: 5px 0;
+    margin: 0 0 5px 0;
+    border: 1px solid #e7e7e7;
+    border-radius: 10px;
+}
+
+.dashcounts .count:hover
+{
+    background-color:#fffee6;
+    border: 1px solid #e7e7e7;
+}
+
+.dashcounts .header.line
+{
+    stroke-width:1px;
+    stroke: #ECECEC;
+    shape-rendering: crispEdges;
+}
+
+.dashcounts .canvas {
+    stroke-width:1px;
+    stroke: #ECECEC;
+    fill: #FFFFF2;
+    cursor: pointer;
+}
+
+.dashcounts .countvalue
+{
+    font-size: 30px;
+    color: #6699FF;
+    font-weight: bold;
+}
+
+.activator {
+    display: none;
+}
+
+@media screen and (max-width: 750px) {
+    .dashboard {
+        grid-template-areas: 
+            "sidebar sidebar"
+            "content content";
+    }
+    
+    .activator {
+        display: block;
+        width: 100%;
+        padding: 8px 0;
+        margin: 2px 0;
+        cursor: pointer;
+        background: #C8DCD5;
+    }
+
+    .activator i:before{
+        font-family: FontAwesome;
+        font-size: 1em;
+        font-style: normal;
+        font-weight: normal;
+        display: inline-block;
+        padding: 0 12px;
+        color: #fff;
+        opacity:0.8;
+        vertical-align:middle;
+        content:"\f101";
+    }
+
+    .activator.active i:before{
+        content:"\f103";
+    }
+
+    .activator-label {
+        margin-left: 20px;
+        font-size: 1em;
+        font-weight: 500;
+        font-style: normal;
+        color: #fff;
+    }
+
+    .activated {
+        float: none;
+        display: none;
+    }
+
+    .activated.active {
+        display: block;
+    }
+    
+}

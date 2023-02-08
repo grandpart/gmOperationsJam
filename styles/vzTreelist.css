@@ -1,0 +1,80 @@
+.treelist {
+    position: relative;
+}
+
+.treelist li {
+    margin-left: 10px;
+    padding-left: 10px;
+}
+
+.treelist li .row {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 32px 1fr 180px;
+    grid-template-rows: auto;
+    grid-template-areas: 
+        "expander object action";
+    align-items: center;
+    margin: 2px 0;
+}
+
+.treelist li .row .expander {
+    grid-area: expander;
+}
+
+.treelist li .row .object {
+    grid-area: object;
+    padding: 2px 0 2px 2px;
+}
+
+.treelist li .row:hover .object{
+    color: rgb(110, 110, 110);
+    border-color: #aaa;
+    background-color: #f0f0f0;
+}
+
+.treelist li .row .action {
+    grid-area: action;
+    white-space: nowrap;
+    overflow: hidden;
+    /* justify-content:flex-end; */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+}
+
+.treelist li .row .expander span.expanded,
+.treelist li .row .expander span.collapsed {
+    cursor: pointer;
+}
+
+.treelist li .row .expander span.expanded::before {
+    color: rgb(71, 146, 81);
+    content: "\002D";
+}
+
+.treelist li .row .expander span.collapsed::before {
+    color: rgb(105, 143, 201);
+    content: "\002b";
+}
+
+.treelist li .row .expander span.leaf::before {
+    color: rgb(185, 185, 185);
+    content: "\1f651";
+}
+
+.treelist .row .object.found{
+    color: #fff;
+    background-color: #0000ff;
+    border: 1px solid #000;
+}
+
+.treelist .row .object.dragging{
+    color: #fff;
+    background-color: #fc0101;
+    border: 2px solid #000;
+    opacity: .3;
+}
+
+.treelist span.bold {
+    font-weight: bold;
+}

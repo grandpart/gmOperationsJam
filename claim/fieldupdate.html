@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Update an existing Claim</title>
+        <meta name="description" content="Update an existing Claim for your portfolio">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../styles/global.css">
+        <link rel="stylesheet" href="../styles/vzButtons.css">
+        <link rel="stylesheet" href="../styles/nav.css">
+        <link rel="stylesheet" href="../styles/pages.css">
+        <link rel="stylesheet" href="../styles/vzForms2.css">
+        <link rel="stylesheet" href="../styles/vzLoader.css">
+        <link rel="stylesheet" href="../styles/vzPopupDialog.css">
+        
+        <script src="../libraries/d3.min.js"></script> 
+        <script src="../scripts/vzUtils.js"></script> 
+        <script src="../scripts/vzLoader.js"></script>
+        <script src="../scripts/vzFetchPromise.js"></script> 
+        <script src="../scripts/vzPopupDialog.js"></script> 
+        
+    </head>
+    <body>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+
+        <header>
+            <div class="left"></div>
+            <div class="center">
+                <div class="nav-links">
+                    <div class="nav-links">
+                        <a class="nav-item" href="../index.html"><span aria-hidden="true">&#x1F3E0</span>Home</a>
+                        <a class="nav-item" href="../cams.html"><span aria-hidden="true">&#x1F393</span>CAMS</a>
+                        <a class="nav-item" href="claimlist.html"><span aria-hidden="true">&#x1F4C3</span>Claims</a>
+                        <a class="nav-item" href="#" id="nav-claimfieldlist"><span aria-hidden="true">&#x1F4C3</span>ClaimFields</a>
+                        <a class="nav-item active" href="#"><span aria-hidden="true">&#x27A1</span>Edit a ClaimField</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logo">
+                    <img src="../images/logo.svg" height="64px" width="64px"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- content -->
+        <main>
+            <div class="content">
+                <div id="claimheader" class="claim-header"></div>
+                <h1>Edit a Claim Field</h1>
+                <p>Edit the ClaimField form below, and press the "Update" button.</p>
+                
+                <div class="form">
+                    <form id="form" novalidate >
+                        <div class="inputlist">
+                            <div class="labelwrapper required">
+                                <label for="label">Label</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="text" id="label" name="label" required />
+                                <span class="error" aria-live="polite"></span>
+                            </div>
+                            <div class="labelwrapper required">
+                                <label for="type">Type</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="text" id="type" name="type" required />
+                                <span class="error" aria-live="polite"></span>
+                            </div>
+                            <div class="labelwrapper required">
+                                <label for="required">Required</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="checkbox" id="required" name="required" required />
+                                <span class="error" aria-live="polite"></span>
+                            </div>
+                            <div class="labelwrapper required">
+                                <label for="sequence">Sequence</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="number" id="sequence" name="sequence" required />
+                                <span class="error" aria-live="polite"></span>
+                            </div>                                    
+                        </div>
+                    </form>
+                    <div class="pure-button-group" role="group" aria-label="Database Control">
+                        <button type="button" id="btnUpdate" class="pure-button medium bold update">
+                            <span>Update</span>
+                        </button>
+                        <button type="button" id="btnCancel" class="pure-button medium cancel">
+                            <span>Cancel</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <span>Copyright &copy; 2021 Zephry (Pty) Limited</span>
+        </footer>
+
+        <script>
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // Get query params
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const params = Object.fromEntries(urlSearchParams.entries());
+            // set nav hrefs
+            document.getElementById("nav-claimfieldlist").href=`fieldlist.html?clmkey=${params.clmkey}`;
+            // Bind button cancel event
+            document.getElementById("btnCancel").addEventListener("click", function(e) {
+                window.location = `fieldlist.html?clmkey=${params.clmkey}`;
+            });
+            // Bind button add event
+            document.getElementById("btnUpdate").addEventListener("click", function(e) {
+                updateClaim();
+            });
+            // Load a Claim
+            function loadClaim() {
+                vLoader.start("Please be patient. Loading claim...");
+                vzFetchJson(`/claims/${params.clmkey}/fields/${params.clfkey}`, "GET")
+                .then(function(data) {
+                    document.getElementById("label").value = data.label;
+                    document.getElementById("type").value = data.type;
+                    document.getElementById("required").checked = data.required;
+                    document.getElementById("sequence").value = data.sequence;
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = vzUtils.loginLocation();
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                }) 
+            }
+            loadClaim();
+            // Update a Claim object
+            function updateClaim() {
+                var vClaimfield = {
+                    label: document.getElementById("label").value,
+                    type: document.getElementById("type").value,
+                    required: document.getElementById("required").checked,
+                    sequence: parseInt(document.getElementById("sequence").value, 10)
+                }
+                // PUT claim
+                vLoader.start("Please be patient. Updating claim...");
+                vzFetchJson(`/claims/${params.clmkey}/fields/${params.clfkey}`, "PUT", JSON.stringify(vClaimfield))
+                .then(function(data) {
+                    window.location = "claimlist.html";
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = vzUtils.loginLocation();
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                }) 
+            }
+            
+        </script>
+    </body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CAMS Login</title>
+        <meta name="description" content="Forgot CAMS Password">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../styles/global.css">
+        <link rel="stylesheet" href="../styles/nav.css">
+        <link rel="stylesheet" href="../styles/pages.css">
+        <link rel="stylesheet" href="../styles/vzLoader.css">
+        
+        <script src="../scripts/vzUtils.js"></script> 
+        <script src="../scripts/vzLoader.js"></script> 
+ 
+    </head>
+    <body>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+
+        <header>
+            <div class="left"></div>
+            <div class="center">
+                <div class="nav-links">
+                    <a class="nav-item" href="../index.html"><span aria-hidden="true">&#x1F3E0</span>Home</a>
+                    <a class="nav-item" href="../estate/index.html"><span aria-hidden="true">&#x1F680</span>CAMS</a>
+                    <a class="nav-item" href="../contact.html"><span aria-hidden="true">&#x260E</span>Contact</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logo">
+                    <img src="../images/logo.svg" height="64px" width="64px"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- content -->
+        <main>
+            <div class="hero">
+                <div class=title>
+                    <img src="../images/ze_150_logo.svg" alt="Zephry Login"/>
+                    <h1>Password Change Request</h1>
+                    <p>On submit, an email will be sent to your address for verification. Please follow the instructions in 
+                        order to complete the password change request.</p>
+                </div>
+            </div>
+            <div class="login">
+                <p>Please enter your email address in the field provided:</p>
+                <form id="forgotform">
+                    <div class="email">
+                        <label for="email">User ID</label>
+                        <input type="text" id="email" name="email" />
+                    </div>
+                    <input type="hidden" id="passthru" name="passthru" />
+                    <div class="control">
+                        <button type="button" id="btnCancel" class="cancel">
+                            <img src="../images/ico-xmark.svg" height="24px" width="24px"/>
+                            <span>Cancel</span>
+                        </button>
+                        <button type="submit" class="submit">
+                            <img src="../images/ico-check.svg" height="24px" width="24px"/>
+                            <span>Submit</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+        <footer>
+            <span>Copyright &copy; 2021 Zephry (Pty) Limited</span>
+        </footer>
+
+        <script>
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            })
+            // set a passthru for the return link (the "click" in the email goes here)
+            document.getElementById("passthru").value = vzUtils.jamurl("/account/forgotverify.html");
+            // Attach the form, bind submit event
+            let vForm = document.getElementById( "forgotform" );
+            vForm.addEventListener("submit", function(e) {
+                e.preventDefault();
+                sendData();
+            });
+            // Bind button cancel event
+            document.getElementById("btnCancel").addEventListener("click", function(e) {
+                window.location = "/";
+            });
+            // POST forgotten password information
+            function sendData() {
+                // Start a loader
+                vLoader.start("Please be patient. Your password change request will take a moment...")
+                // Load wait animation
+                document.getElementById("wait-overlay").style.display="";
+                // Bind form data (inputs)
+                var vFormObject = Object.fromEntries(new FormData(vForm));
+                // Post login
+                fetch(vzUtils.apiurl("/forgot"), vzUtils.fetchInit({method: "POST", body: JSON.stringify(vFormObject)}))
+                .then(function (response) {
+                    // Test for response error (i.e. server error)
+                    vLoader.stop();
+                    if (!response.ok) {
+                        return response.text().then(function(text) { alert(`${ response.status}: ${text}`) })
+                    } else {
+                        return response.json().then(function (data) { window.location = `forgotwait.html` })
+                    }                    
+                })
+                .catch(function (err) {
+                    vLoader.stop();
+                    // show a nice popup here
+                    alert('Network Error: ' + err);
+                })
+                .finally(function() { 
+                    vLoader.stop();
+                });
+            }
+        </script>
+    </body>
+</html>

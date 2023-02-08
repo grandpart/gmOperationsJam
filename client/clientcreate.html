@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create a new Client</title>
+        <meta name="description" content="Create a new Client">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../styles/global.css">
+        <link rel="stylesheet" href="../styles/vzButtons.css">
+        <link rel="stylesheet" href="../styles/nav.css">
+        <link rel="stylesheet" href="../styles/pages.css">
+        <link rel="stylesheet" href="../styles/vzForms2.css">
+        <link rel="stylesheet" href="../styles/vzLoader.css">
+        <link rel="stylesheet" href="../styles/vzPopupDialog.css">
+        
+        <script src="../libraries/d3.min.js"></script> 
+        <script src="../scripts/vzUtils.js"></script> 
+        <script src="../scripts/vzLoader.js"></script>
+        <script src="../scripts/vzFetchPromise.js"></script> 
+        <script src="../scripts/vzPopupDialog.js"></script> 
+        
+    </head>
+    <body>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+
+        <header>
+            <div class="left"></div>
+            <div class="center">
+                <div class="nav-links">
+                    <a class="nav-item" href="../index.html"><span aria-hidden="true">&#x1F3E0</span>Home</a>
+                    <a class="nav-item" href="../cams.html"><span aria-hidden="true">&#x1f50e</span>CAMS</a>
+                    <a class="nav-item" href="clientlist.html"><span aria-hidden="true">&#x1F4C3</span>Clients</a>
+                    <a class="nav-item active" href="#"><span aria-hidden="true">&#x27A1</span>Add a Client</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logo">
+                    <img src="../images/logo.svg" height="64px" width="64px"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- content -->
+        <main>
+            <div class="content">
+                <div id="clientheader" class="client-header"></div>
+                <h1>Create an Client</h1>
+                <p>Complete the Client form below, and press the "Create" button to add a client.</p>
+                
+                <div class="form">
+                    <form id="form" novalidate >
+                        <div class="inputlist">
+                            <div class="labelwrapper required">
+                                <label for="name">Name</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="text" id="name" name="name" required />
+                                <span class="error" aria-live="polite"></span>
+                            </div>
+                                
+                        </div>
+                    </form>
+                    <div class="pure-button-group" role="group" aria-label="Database Control">
+                        <button type="button" id="btnInsert" class="pure-button medium bold insert">
+                            <span>Insert</span>
+                        </button>
+                        <button type="button" id="btnCancel" class="pure-button medium cancel">
+                            <span>Cancel</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <span>Copyright &copy; 2021 Zephry (Pty) Limited</span>
+        </footer>
+
+        <script>
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // Bind button cancel event
+            document.getElementById("btnCancel").addEventListener("click", function(e) {
+                window.location = `clientlist.html`;
+            });
+            // Bind button add event
+            document.getElementById("btnInsert").addEventListener("click", function(e) {
+                createClient();
+            });
+            // Get a parent key from query params
+            let vClnKey;
+            const params = new URLSearchParams(window.location.search);
+            params.has("parent") ? vClnKey = parseInt(params.get("parent")): vClnKey = 0;
+            // Create an client object
+            function createClient() {
+                var vClient = {
+                    name: document.getElementById("name").value,
+                    parent: vClnKey
+                }
+                // POST client
+                vzFetchJson("/clients", "POST", JSON.stringify(vClient))
+                .then(function(data) {
+                    window.location = "clientlist.html";
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        vzUtils.loginLocation();
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                }) 
+            }
+        </script>
+    </body>
+</html>

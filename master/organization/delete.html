@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Delete Organization</title>
+        <meta name="description" content="Delete an existing Organization from your portfolio">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../../styles/global.css">
+        <link rel="stylesheet" href="../../styles/vzButtons.css">
+        <link rel="stylesheet" href="../../styles/nav.css">
+        <link rel="stylesheet" href="../../styles/pages.css">
+        <link rel="stylesheet" href="../../styles/vzBanner.css">
+        <link rel="stylesheet" href="../../styles/vzLoader.css">
+        <link rel="stylesheet" href="../../styles/vzPopupDialog.css">
+        
+        <script src="../../libraries/d3.min.js"></script> 
+        <script src="../../scripts/vzUtils.js"></script> 
+        <script src="../../scripts/vzLoader.js"></script> 
+        <script src="../../scripts/vzFetchPromise.js"></script> 
+        <script src="../../scripts/vzPopupDialog.js"></script> 
+        <script src="../../scripts/vzBanner.js"></script>
+        <script src="../../scripts/vzBannerData.js"></script>
+        <script src="../../scripts/vzFooter.js"></script>
+        
+    </head>
+    <body>
+        <body style=position:relative;>
+            <div id="wait-overlay" style="display:none"></div>
+            <div id="wait-loader" class="waitloader"></div>
+            <div id="popup-dialog" class="popupdialog"></div>
+    
+            <header id="header"></div></header>
+    
+            <main>
+                <div class="content">
+                    
+                    <div class="nav-links">
+                        <a class="nav-item" href="../../index.html"><span aria-hidden="true">&#x25A0;</span>Home</a>
+                        <a class="nav-item" href="../index.html"><span aria-hidden="true">&gt;</span>Masters</a>
+                        <a class="nav-item " href="index.html"><span aria-hidden="true">&gt;</span>Organizations</a>
+                        <a class="nav-item active" href="#"><span aria-hidden="true">&gt;</span>Delete</a>
+                    </div>
+                <h1>Delete Organization</h1>
+                <p>Press the "Delete" button to permanently delete an organization.</p>
+                
+                <div class="form">
+                    <form id="form" novalidate >
+                        <div class="inputlist">
+                            <div class="labelwrapper">
+                                <label for="name">Name</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="text" id="orgname" name="orgname" readonly />
+                            </div>                                
+                        </div>
+                    </form>
+                    <div class="pure-button-group" role="group" aria-label="Database Control">
+                        <button type="button" id="btnDelete" class="pure-button medium bold delete">
+                            <span>Delete</span>
+                        </button>
+                        <button type="button" id="btnCancel" class="pure-button medium cancel">
+                            <span>Cancel</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <span>Copyright &copy; 2021 Zephry (Pty) Limited</span>
+        </footer>
+
+        <script>
+            // Header and footer  
+            vzBanner({
+                docElement: "#header",
+                title: "Torq",
+                url: "url",
+                caption: "caption",
+                children: "children"}).update(vzBannerData);                          
+            vzFooter({docElement: "#footer"})
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // Get a organization key from query params
+            let vOrgKey;
+            const params = new URLSearchParams(window.location.search);
+            params.has("orgkey") ? vOrgKey = params.get("orgkey"): vOrgKey = 0;
+            // Bind button cancel event
+            document.getElementById("btnCancel").addEventListener("click", function(e) {
+                window.location = `list.html`;
+            });
+            // Bind button delete event
+            document.getElementById("btnDelete").addEventListener("click", function(e) {
+                deleteOrganization();
+            });
+            // Load an Organization
+            function loadOrganization() {
+                // GET organization
+                vzFetchJson(`/organization/${vOrgKey}`, "GET")
+                .then(function(data) {
+                    document.getElementById("orgname").value = data.data.orgname;
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        vzUtils.loginLocation();
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                }) 
+            }
+            loadOrganization();
+            // Delete an Organization object
+            function deleteOrganization() {
+                // DELETE organization
+                vzFetchJson(`/organization/${vOrgKey}`, "DELETE")
+                .then(function(data) {
+                    window.location = "list.html";
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = vzUtils.loginLocation();
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                }) 
+            }
+            
+        </script>
+    </body>
+</html>

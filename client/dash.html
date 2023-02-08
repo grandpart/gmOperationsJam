@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Client Dashboard</title>
+        <meta name="description" content="Client dashboard allows interaction with all aspects of the selected client">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../styles/global.css">
+        <link rel="stylesheet" href="../styles/vzButtons.css">
+        <link rel="stylesheet" href="../styles/nav.css">
+        <link rel="stylesheet" href="../styles/pages.css">
+        <link rel="stylesheet" href="../styles/vzTreelist.css">
+        <link rel="stylesheet" href="../styles/vzDragdialog.css">
+        <link rel="stylesheet" href="../styles/vzLoader.css">
+        <link rel="stylesheet" href="../styles/vzPopupDialog.css">
+        
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <!-- <script src="../libraries/d3.min.js"></script>  -->
+        <script src="../scripts/vzUtils.js"></script> 
+        <script src="../scripts/vzLoader.js"></script> 
+        <script src="../scripts/vzFetchPromise.js"></script> 
+        <script src="../scripts/vzPopupDialog.js"></script> 
+        <script src="../scripts/vzTreelist.js"></script> 
+        
+
+    </head>
+    <body style=position:relative;>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+
+        <header>
+            <div class="left"></div>
+            <div class="center">
+                <div class="nav-links">
+                    <a class="nav-item" href="../index.html"><span aria-hidden="true">&#x1F3E0</span>Home</a>
+                    <a class="nav-item" href="../cams.html"><span aria-hidden="true">&#x1f50e</span>CAMS</a>
+                    <a class="nav-item" href="clientlist.html" id="nav-client"><span aria-hidden="true">&#x1F3DB</span>Clients</a>
+                    <a class="nav-item active" href="#" id="nav-client"><span aria-hidden="true">&#x1F3DB</span>Client Dashboard</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logo">
+                    <img src="../images/logo.svg" height="64px" width="64px"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- content -->
+        <main>
+            <div class="content">
+                <div id="candidateheader" class="candidate-header"></div>
+                <h1>Client Dashboard</h1>
+                <p>Manage all aspects of the selected client.</p>
+                 
+            </div>
+        </main>
+        <footer>
+            <span>Copyright &copy; 2021 Zephry (Pty) Limited</span>
+        </footer>
+
+        <script>
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+        </script>
+    </body>
+</html>
