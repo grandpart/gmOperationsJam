@@ -1,2 +1,2 @@
-# cams-jam
-A headless (yet dedicated) CAMS jam-site
+# operations-jam
+A headless (yet dedicated) Grandmark Operations jam-site
