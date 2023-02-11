@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Master Dashboard</title>
-        <meta name="description" content="Manage Master Files">
+        <title>Sales Dashboard</title>
+        <meta name="description" content="Grandmark Sales at a glance">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name=viewport content="width=device-width, initial-scale=1">
         
@@ -36,18 +36,17 @@
                 
                 <div class="nav-links">
                     <a class="nav-item" href="../index.html">Home</a><span aria-hidden="true">&#8594;</span>
-                    <a class="nav-item" href="index.html">Masters</a>
+                    <a class="nav-item active" href="#">Sales</a>
                 </div>
-                <h1>Master Dashboard</h1>
-                <div class="tabs">
-                    <div class="tab"><span></span><a href="user/list.html">Users</a></div>
-                    <div class="tab"><span></span><a href="organization/list.html">Organizations</a></div>
-                    <button id="stream" type="button">Stream</button>
-                </div>
+                <h1>Sales Dashboard</h1>
                 <div class="cards ace">
                     <div class="card card-one">
                         <div id="numbers" class=number-cards></div>
                     </div>
+                </div>
+                
+                <div class="tabs">
+                    <a href="list.html">Sales Orders</a>
                 </div>
             </div>
         </main>
@@ -76,47 +75,24 @@
             function popupEvent(aEvent) {
                 vPopupDialog.close();
             }
-
-            // TEST!!!!!!!!!!!!!!!!!!!!!!!!!!
-            // Bind button stream event
-            function fetchStream() {
-                // Fetch ticket
-                vzFetchJson("/customer/stream?filter=han", "GET")
-                .then(function(editor) {
-                    showTicketEditor(editor)
-                    vLoader.stop();
-                })
-                .catch(function(error) {
-                    vLoader.stop();
-                    if (error.status === 401) {
-                        window.location = "/account/login.html?passthru=/master/index.html"
-                    } else {
-                        vPopupDialog.open({modal:true, content: error});
-                    };
-                })
-            }
-            document.getElementById("stream").addEventListener("click", function(e) {
-                fetchStream();
-            });
-
             // Fetch a ticket editor object
-            function fetchMasterDashboard() {
+            function fetchSalesDashboard() {
                 // Fetch ticket
-                vzFetchJson("/master/dashboard", "GET")
+                vzFetchJson("/ticket/dashboard", "GET")
                 .then(function(editor) {
-                    showTicketEditor(editor)
+                    showSalesEditor(editor)
                     vLoader.stop();
                 })
                 .catch(function(error) {
                     vLoader.stop();
                     if (error.status === 401) {
-                        window.location = "/account/login.html?passthru=/master/index.html"
+                        window.location = "/account/login.html?passthru=/ticket/index.html"
                     } else {
                         vPopupDialog.open({modal:true, content: error});
                     };
                 })
             }
-            //fetchMasterDashboard();
+            //fetchSalesDashboard();
 
         </script>
     </body>

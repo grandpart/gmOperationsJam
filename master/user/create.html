@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create a new User</title>
+        <meta name="description" content="Create a new User">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../../styles/global.css">
+        <link rel="stylesheet" href="../../styles/vzButtons.css">
+        <link rel="stylesheet" href="../../styles/nav.css">
+        <link rel="stylesheet" href="../../styles/pages.css">
+        <link rel="stylesheet" href="../../styles/vzBanner.css">
+        <link rel="stylesheet" href="../../styles/vzForms.css">
+        <link rel="stylesheet" href="../../styles/vzLoader.css">
+        <link rel="stylesheet" href="../../styles/vzPopupDialog.css">
+        <link rel="stylesheet" href="../../styles/vzAutoSearch.css">
+        
+        <script src="../../libraries/d3.min.js"></script> 
+        <script src="../../scripts/vzUtils.js"></script> 
+        <script src="../../scripts/vzLoader.js"></script> 
+        <script src="../../scripts/vzFetchPromise.js"></script> 
+        <script src="../../scripts/vzPopupDialog.js"></script> 
+        <script src="../../scripts/vzBanner.js"></script>
+        <script src="../../scripts/vzBannerData.js"></script>
+        <script src="../../scripts/vzFooter.js"></script>
+        <script src="../../scripts/gmCustomerStream.js"></script> 
+        <script src="../../scripts/vzAutocomplete.js"></script> 
+        
+    </head>
+    <body>
+        <body style=position:relative;>
+            <div id="wait-overlay" style="display:none"></div>
+            <div id="wait-loader" class="waitloader"></div>
+            <div id="popup-dialog" class="popupdialog"></div>
+    
+            <header id="header"></div></header>
+    
+            <main>
+                <div class="content">
+                    
+                    <div class="nav-links">
+                        <a class="nav-item" href="../../index.html"><span aria-hidden="true">&#x25A0;</span>Home</a>
+                        <a class="nav-item" href="../index.html"><span aria-hidden="true">&gt;</span>Masters</a>
+                        <a class="nav-item " href="index.html"><span aria-hidden="true">&gt;</span>Users</a>
+                        <a class="nav-item active" href="#"><span aria-hidden="true">&gt;</span>Add</a>
+                    </div>
+                <h1>New User</h1>
+                <p>Complete the User form below, and press the "Create" button to add a user.</p>
+                
+                <div class="form">
+                    <form id="form" novalidate >
+                        <div class="inputlist lookup">
+                            <div class="labelwrapper required">
+                                <label for="CusName">Customer</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="hidden" id="CusKey" name="CusKey" />
+                                <input type="text" id="CusName" name="CusName" autocomplete="off" required/>
+                                <div class="lookup-dialog" id="findlist"></div>
+                                <span class="error" aria-live="polite"></span>
+                            </div>
+                            <span class="icon"></span>                                
+                        </div>
+                        
+                        <div class="inputlist lookup">
+                            <div class="labelwrapper required">
+                                <label for="CusName2">Customer 2</label>
+                            </div>
+                            <div class="inputwrapper">
+                                <input type="hidden" id="CusKey2" name="CusKey2" />
+                                <input type="text" id="CusName2" name="CusName2" autocomplete="off" required/>
+                                <div class="lookup-dialog" id="findlist2"></div>
+                                <span class="error" aria-live="polite"></span>
+                            </div>
+                            <span class="icon"></span>                                
+                        </div>
+
+                    </form>
+                    <div class="pure-button-group" role="group" aria-label="Database Control">
+                        <button type="button" id="btnInsert" class="pure-button medium bold insert">
+                            <span>Insert</span>
+                        </button>
+                        <button type="button" id="btnCancel" class="pure-button medium cancel">
+                            <span>Cancel</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer id="footer"></footer>
+
+        <script>
+            // Header and footer  
+            vzBanner({
+                docElement: "#header",
+                title: "Torq",
+                url: "url",
+                caption: "caption",
+                children: "children"}).update(vzBannerData);                          
+            vzFooter({docElement: "#footer"})
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // Bind button cancel event
+            document.getElementById("btnCancel").addEventListener("click", function(e) {
+                window.location = `list.html`;
+            });
+            // Bind button add event
+            document.getElementById("btnInsert").addEventListener("click", function(e) {
+                createUser();
+            });
+
+            // initiate two Customer finders, handle a found event
+            let vCustomerStream = gmCustomerStream({
+                Top: 50,
+                DocElement: document.getElementById("findlist"),
+                SearchInput: document.getElementById("CusName"),
+                KeyInput: document.getElementById("CusKey"),
+                Url: "/customers/stream",
+                // OnEvent: findEvent
+            });
+            
+            let vCustomerStream2 = gmCustomerStream({
+                Top: 50,
+                DocElement: document.getElementById("findlist2"),
+                SearchInput: document.getElementById("CusName2"),
+                KeyInput: document.getElementById("CusKey2"),
+                Url: "/customers/stream",
+                //OnEvent: findEvent
+            });
+
+            // function findEvent(aEvent) {
+            //     switch (aEvent.event) {
+            //         case "selected":
+            //             document.getElementById('CusName').classList.toggle('editing', false);
+            //             document.getElementById("CusName").value = aEvent.data.Value;
+            //             document.getElementById("CusKey").value = aEvent.data.Key;
+            //             break;
+            //         case "editing":
+            //             document.querySelector('#CusName').classList.toggle('editing', true);
+            //             break;
+            //     }
+            // }
+
+            // Get a parent key from query params
+            let vUsrKey;
+            const params = new URLSearchParams(window.location.search);
+            params.has("parent") ? vUsrKey = parseInt(params.get("parent")): vUsrKey = 0;
+            // Create an user object
+            function createUser() {
+                var vUser = {
+                    usrname: document.getElementById("usrname").value,
+                    usrkeyparent: vUsrKey
+                }
+                // POST user
+                vzFetchJson("/user", "POST", JSON.stringify(vUser))
+                .then(function(data) {
+                    window.location = "list.html";
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = "/account/login.html?passthru=/master/user/list.html"
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                })
+            }
+        </script>
+    </body>
+</html>

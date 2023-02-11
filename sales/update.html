@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Create Ticket</title>
-        <meta name="description" content="Create a new Ticket">
+        <title>Edit Ticket</title>
+        <meta name="description" content="Edit an existing Ticket">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name=viewport content="width=device-width, initial-scale=1">
         
@@ -39,13 +39,22 @@
                     <a class="nav-item" href="../index.html">Home</a><span aria-hidden="true">&#8594;</span>
                     <a class="nav-item" href="index.html">Tickets</a><span aria-hidden="true">&#8594;</span>
                     <a class="nav-item" href="list.html">List</a><span aria-hidden="true">&#8594;</span>
-                    <a class="nav-item active" href="#">Create</a>
+                    <a class="nav-item active" href="#">Edit</a>
                 </div>
-            <h1>Create Ticket</h1>
-            <p>Complete the Ticket form below, and press the "Insert" button to create a ticket.</p>
+            <h1>Edit Ticket</h1>
+            <p>Change the Ticket form below, and press the "Update" button to edit a ticket.</p>
                 
             <div class="form">
                 <form id="form" novalidate >
+                    <div class="inputlist">
+                        <div class="labelwrapper">
+                            <label for="TckStatus">Status</label>
+                        </div>
+                        <div class="inputwrapper">
+                            <input type="text" id="TckStatus" name="TckStatus" readonly />
+                            <span class="error" aria-live="polite"></span>
+                        </div>                                
+                    </div>
                     <div class="inputlist">
                         <div class="labelwrapper required">
                             <label for="TckDescription">Description</label>
@@ -76,14 +85,34 @@
                         </div>                            
                     </div>
                     <div class="inputlist">
-                        <div class="labelwrapper">
+                        <div class="labelwrapper required">
                             <label for="OrgName">Organization</label>
                         </div>
                         <div class="inputwrapper">
                             <input type="hidden" id="OrgKey" name="OrgKey" />
-                            <input type="text" id="OrgName" name="OrgName" />
+                            <input type="text" id="OrgName" name="OrgName" required />
                             <span class="error" aria-live="polite"></span>
                         </div>                            
+                    </div>
+                    <div class="inputlist">
+                        <div class="labelwrapper required">
+                            <label for="UsrNameSrc">Requesting User</label>
+                        </div>
+                        <div class="inputwrapper">
+                            <input type="hidden" id="UsrKeySrc" name="UsrKeySrc" />
+                            <input type="text" id="UsrNameSrc" name="UsrNameSrc" required />
+                            <span class="error" aria-live="polite"></span>
+                        </div>                                  
+                    </div>
+                    <div class="inputlist">
+                        <div class="labelwrapper required">
+                            <label for="UsrNameTgt">Allocated User</label>
+                        </div>
+                        <div class="inputwrapper">
+                            <input type="hidden" id="UsrKeyTgt" name="UsrKeyTgt" />
+                            <input type="text" id="UsrNameTgt" name="UsrNameTgt" required />
+                            <span class="error" aria-live="polite"></span>
+                        </div>                                
                     </div>
                     <div class="inputlist">
                         <div class="labelwrapper required">
@@ -94,10 +123,19 @@
                             <span class="error" aria-live="polite"></span>
                         </div>                                
                     </div>
+                    <div class="inputlist">
+                        <div class="labelwrapper required">
+                            <label for="TckDateCapture">Captured</label>
+                        </div>
+                        <div class="inputwrapper">
+                            <input type="text" id="TckDateCapture" name="TckDateCapture" readonly />
+                            <span class="error" aria-live="polite"></span>
+                        </div>                                
+                    </div>
                 </form>
                 <div class="pure-button-group" role="group" aria-label="Database Control">
-                    <button type="button" id="btnInsert" class="pure-button medium bold insert">
-                        <span>Insert</span>
+                    <button type="button" id="btnUpdate" class="pure-button medium bold update">
+                        <span>Update</span>
                     </button>
                     <button type="button" id="btnCancel" class="pure-button medium cancel">
                         <span>Cancel</span>
@@ -135,8 +173,8 @@
                 window.location = `list.html`;
             });
             // Bind button add event
-            document.getElementById("btnInsert").addEventListener("click", function(e) {
-                insertTicket();
+            document.getElementById("btnUpdate").addEventListener("click", function(e) {
+                updateTicket();
             });
             // Get a parent key from query params
             let vTckKey;
@@ -152,19 +190,25 @@
             }
             // Populate Form
             function showTicketEditor(aEditor) {
+                document.getElementById("TckStatus").value = aEditor.Ticket.TckStatus;
                 document.getElementById("TckDescription").value = aEditor.Ticket.TckDescription;
-                document.getElementById("OrgKey").value = 2 //aEditor.Ticket.OrgKey;
+                document.getElementById("OrgKey").value = aEditor.Ticket.OrgKey;
                 document.getElementById("OrgName").value = aEditor.Ticket.OrgName;
+                document.getElementById("UsrKeySrc").value = aEditor.Ticket.UsrKeySrc;
+                document.getElementById("UsrNameSrc").value = aEditor.Ticket.UsrNameSrc;
+                document.getElementById("UsrKeyTgt").value = aEditor.Ticket.UsrKeyTgt;
+                document.getElementById("UsrNameTgt").value = aEditor.Ticket.UsrNameTgt;
                 document.getElementById("TprKey").value = aEditor.Ticket.TprKey;
                 vzUtils.selectList("TprName", aEditor.TprList, aEditor.Ticket.TprName, tprChanged);
                 document.getElementById("TtpKey").value = aEditor.Ticket.TtpKey;
                 vzUtils.selectList("TtpName", aEditor.TtpList, aEditor.Ticket.TtpName, ttpChanged);
+                document.getElementById("TckDateCapture").value = vzUtils.formatDate(new Date(aEditor.Ticket.TckDateCapture));
                 document.getElementById("TckHoursRequired").value = aEditor.Ticket.TckHoursRequired;
             }
             // Fetch a ticket editor object
             function fetchTicketEditor() {
                 // Fetch ticket
-                vzFetchJson(`/ticket/editor/${0}`, "GET")
+                vzFetchJson(`/ticket/editor/${vTckKey}`, "GET")
                 .then(function(editor) {
                     showTicketEditor(editor)
                     vLoader.stop();
@@ -181,10 +225,10 @@
             fetchTicketEditor();
 
             // Update a ticket
-            function insertTicket() {
+            function updateTicket() {
                 let vFormData = new FormData(document.getElementById( "form" ))
                 var vFormObject = Object.fromEntries(vFormData);
-                vzFetchJson(`/ticket`, "POST", JSON.stringify(vFormObject))
+                vzFetchJson(`/ticket/${vTckKey}`, "PUT", JSON.stringify(vFormObject))
                 .then(function(data) {
                     window.location = "list.html";
                     vLoader.stop();

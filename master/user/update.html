@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Create Organization</title>
-        <meta name="description" content="Create a new Organization">
+        <title>Edit Organization</title>
+        <meta name="description" content="Edit and existing Organization">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name=viewport content="width=device-width, initial-scale=1">
         
@@ -10,7 +10,6 @@
         <link rel="stylesheet" href="../../styles/vzButtons.css">
         <link rel="stylesheet" href="../../styles/nav.css">
         <link rel="stylesheet" href="../../styles/pages.css">
-        <link rel="stylesheet" href="../../styles/vzForms.css">
         <link rel="stylesheet" href="../../styles/vzBanner.css">
         <link rel="stylesheet" href="../../styles/vzLoader.css">
         <link rel="stylesheet" href="../../styles/vzPopupDialog.css">
@@ -26,26 +25,27 @@
         
     </head>
     <body>
-        <div id="wait-overlay" style="display:none"></div>
-        <div id="wait-loader" class="waitloader"></div>
-        <div id="popup-dialog" class="popupdialog"></div>
-
-        <header id="header"></div></header>
+        <body style=position:relative;>
+            <div id="wait-overlay" style="display:none"></div>
+            <div id="wait-loader" class="waitloader"></div>
+            <div id="popup-dialog" class="popupdialog"></div>
     
-        <main>
-            <div class="content">
+            <header id="header"></div></header>
+    
+            <main>
+                <div class="content">
+                    
+                    <div class="nav-links">
+                        <a class="nav-item" href="../../index.html"><span aria-hidden="true">&#x25A0;</span>Home</a>
+                        <a class="nav-item" href="../index.html"><span aria-hidden="true">&gt;</span>Masters</a>
+                        <a class="nav-item " href="list.html"><span aria-hidden="true">&gt;</span>Organizations</a>
+                        <a class="nav-item active" href="#"><span aria-hidden="true">&gt;</span>Edit</a>
+                    </div>
+                <h1>Edit Organization</h1>
+                <p>Change the Organization form below, and press the "Update" button to edit an organization.</p>
                 
-                <div class="nav-links">
-                    <a class="nav-item" href="../../index.html">Home</a><span aria-hidden="true">&#8594;</span>
-                    <a class="nav-item" href="../index.html">Masters</a><span aria-hidden="true">&#8594;</span>
-                    <a class="nav-item" href="list.html">Organizations</a><span aria-hidden="true">&#8594;</span>
-                    <a class="nav-item active" href="#">Create</a>
-                </div>
-            <h1>Create Organization</h1>
-            <p>Complete the Organization form below, and press the "Insert" button to create a ticket.</p>
-                
-            <div class="form">
-                <form id="form" novalidate >
+                <div class="form">
+                    <form id="form" novalidate >
                         <div class="inputlist">
                             <div class="labelwrapper required">
                                 <label for="name">Name</label>
@@ -58,8 +58,8 @@
                         </div>
                     </form>
                     <div class="pure-button-group" role="group" aria-label="Database Control">
-                        <button type="button" id="btnInsert" class="pure-button medium bold insert">
-                            <span>Insert</span>
+                        <button type="button" id="btnUpdate" class="pure-button medium bold update">
+                            <span>Update</span>
                         </button>
                         <button type="button" id="btnCancel" class="pure-button medium cancel">
                             <span>Cancel</span>
@@ -98,21 +98,40 @@
                 window.location = `list.html`;
             });
             // Bind button add event
-            document.getElementById("btnInsert").addEventListener("click", function(e) {
-                createOrganization();
+            document.getElementById("btnUpdate").addEventListener("click", function(e) {
+                updateOrganization();
             });
             // Get a parent key from query params
             let vOrgKey;
             const params = new URLSearchParams(window.location.search);
-            params.has("parent") ? vOrgKey = parseInt(params.get("parent")): vOrgKey = 0;
+            params.has("orgkey") ? vOrgKey = parseInt(params.get("orgkey")): vOrgKey = 0;
+            
+            // Fetch an organization object
+            function fetchOrganization() {
+                // Fetch organization
+                vzFetchJson(`/organization/${vOrgKey}`, "GET")
+                .then(function(data) {
+                    document.getElementById("orgname").value = data.orgname;
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = "/account/login.html?passthru=/master/organization/list.html"
+                    } else {
+                        vPopupDialog.open({modal:true, type:"error", message:error});
+                    };
+                })
+            }
+            fetchOrganization();
+
             // Create an organization object
-            function createOrganization() {
+            function updateOrganization() {
                 var vOrganization = {
-                    orgname: document.getElementById("orgname").value,
-                    orgkeyparent: vOrgKey
+                    orgname: document.getElementById("orgname").value
                 }
                 // POST organization
-                vzFetchJson("/organization", "POST", JSON.stringify(vOrganization))
+                vzFetchJson(`/organization/${vOrgKey}`, "PUT", JSON.stringify(vOrganization))
                 .then(function(data) {
                     window.location = "list.html";
                     vLoader.stop();
@@ -120,7 +139,7 @@
                 .catch(function(error) {
                     vLoader.stop();
                     if (error.status === 401) {
-                        window.location = "/account/login.html?passthru=/master/organization/list.html"
+                        window.location = `/account/login.html?passthru=/master/organization/update.html?${vOrgKey}`
                     } else {
                         vPopupDialog.open({modal:true, type:"error", message:error});
                     };

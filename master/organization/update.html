@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Edit Organization</title>
-        <meta name="description" content="Edit and existing Organization">
+        <meta name="description" content="Edit a new Organization">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name=viewport content="width=device-width, initial-scale=1">
         
@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="../../styles/vzButtons.css">
         <link rel="stylesheet" href="../../styles/nav.css">
         <link rel="stylesheet" href="../../styles/pages.css">
+        <link rel="stylesheet" href="../../styles/vzForms.css">
         <link rel="stylesheet" href="../../styles/vzBanner.css">
         <link rel="stylesheet" href="../../styles/vzLoader.css">
         <link rel="stylesheet" href="../../styles/vzPopupDialog.css">
@@ -25,33 +26,32 @@
         
     </head>
     <body>
-        <body style=position:relative;>
-            <div id="wait-overlay" style="display:none"></div>
-            <div id="wait-loader" class="waitloader"></div>
-            <div id="popup-dialog" class="popupdialog"></div>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+
+        <header id="header"></div></header>
     
-            <header id="header"></div></header>
-    
-            <main>
-                <div class="content">
-                    
-                    <div class="nav-links">
-                        <a class="nav-item" href="../../index.html"><span aria-hidden="true">&#x25A0;</span>Home</a>
-                        <a class="nav-item" href="../index.html"><span aria-hidden="true">&gt;</span>Masters</a>
-                        <a class="nav-item " href="list.html"><span aria-hidden="true">&gt;</span>Organizations</a>
-                        <a class="nav-item active" href="#"><span aria-hidden="true">&gt;</span>Edit</a>
-                    </div>
-                <h1>Edit Organization</h1>
-                <p>Change the Organization form below, and press the "Update" button to edit an organization.</p>
+        <main>
+            <div class="content">
                 
-                <div class="form">
-                    <form id="form" novalidate >
+                <div class="nav-links">
+                    <a class="nav-item" href="../../index.html">Home</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item" href="../index.html">Masters</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item" href="list.html">Organizations</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item active" href="#">Update</a>
+                </div>
+            <h1>Update Organization</h1>
+            <p>Complete the Organization form below, and press the "Update" button to edit a ticket.</p>
+                
+            <div class="form">
+                <form id="form" novalidate >
                         <div class="inputlist">
                             <div class="labelwrapper required">
-                                <label for="name">Name</label>
+                                <label for="OrgName">Name</label>
                             </div>
                             <div class="inputwrapper">
-                                <input type="text" id="orgname" name="orgname" required />
+                                <input type="text" id="OrgName" name="OrgName" required />
                                 <span class="error" aria-live="polite"></span>
                             </div>
                                 
@@ -104,14 +104,17 @@
             // Get a parent key from query params
             let vOrgKey;
             const params = new URLSearchParams(window.location.search);
-            params.has("orgkey") ? vOrgKey = parseInt(params.get("orgkey")): vOrgKey = 0;
-            
-            // Fetch an organization object
+            params.has("orgkey") ? vOrgKey = parseInt(params.get("orgkey")): vOrgKey = 0;            
+            // Show an Organization
+            function showOrganization(aOrganization) {
+                document.getElementById("OrgName").value = aOrganization.OrgName;
+            }
+            // Fetch an Organization
             function fetchOrganization() {
                 // Fetch organization
                 vzFetchJson(`/organization/${vOrgKey}`, "GET")
-                .then(function(data) {
-                    document.getElementById("orgname").value = data.orgname;
+                .then(function(d) {
+                    showOrganization(d);
                     vLoader.stop();
                 })
                 .catch(function(error) {
@@ -119,18 +122,17 @@
                     if (error.status === 401) {
                         window.location = "/account/login.html?passthru=/master/organization/list.html"
                     } else {
-                        vPopupDialog.open({modal:true, type:"error", message:error});
+                        vPopupDialog.open({modal:true, content: error});
                     };
                 })
             }
             fetchOrganization();
 
-            // Create an organization object
+            // Update an Organization
             function updateOrganization() {
                 var vOrganization = {
-                    orgname: document.getElementById("orgname").value
+                    OrgName: document.getElementById("OrgName").value
                 }
-                // POST organization
                 vzFetchJson(`/organization/${vOrgKey}`, "PUT", JSON.stringify(vOrganization))
                 .then(function(data) {
                     window.location = "list.html";
@@ -141,7 +143,7 @@
                     if (error.status === 401) {
                         window.location = `/account/login.html?passthru=/master/organization/update.html?${vOrgKey}`
                     } else {
-                        vPopupDialog.open({modal:true, type:"error", message:error});
+                        vPopupDialog.open({modal:true, content: error});
                     };
                 })
             }

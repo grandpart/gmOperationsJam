@@ -2,8 +2,8 @@
 
 <html>
     <head>
-        <title>Organization List</title>
-        <meta name="description" content="Manage Organizations">
+        <title>User List</title>
+        <meta name="description" content="Manage Users">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name=viewport content="width=device-width, initial-scale=1">
         
@@ -41,14 +41,14 @@
                 <div class="nav-links">
                     <a class="nav-item" href="../../index.html">Home</a><span aria-hidden="true">&#8594;</span>
                     <a class="nav-item" href="../index.html">Masters</a><span aria-hidden="true">&#8594;</span>
-                    <a class="nav-item" href="#">Organizations</a>
+                    <a class="nav-item active" href="#">Users</a>
                 </div>
-                <h1>Organization List</h1>
-                <p>Manage the organization tree. Expand/Collapse all. Find in tree. Edit tree.</p>
+                <h1>User List</h1>
+                <p>Manage the user tree.</p>
                     
                 <div class="pure-button-group" role="group" aria-label="Database Control">
                     <button type="button" id="btnAdd" class="pure-button medium bold insert">
-                        <span>Add a top-level organization</span>
+                        <span>Add a top-level user</span>
                     </button>
                     <button type="button" id="btnExpand" class="pure-button medium expand">
                         <span>Expand All</span>
@@ -68,7 +68,7 @@
                             
                     </div>
                 </form>
-                <div class="treelist organizationlist" id="organizationlist"></div>
+                <div class="treelist userlist" id="userlist"></div>
             </div>
         </main>
 
@@ -108,7 +108,7 @@
                 vTreelist.collapseall();
             });
             // bind find event            
-            function orgFind(aString) {
+            function usrFind(aString) {
                 // Don't perform a search for argument length less than 2 characters
                 if (aString === null || aString.length < 2) {
                     return;
@@ -117,24 +117,25 @@
             }
             document.getElementById("inpFind").addEventListener("input", function(e) {
                 vTreelist.clearfind();
-                orgFind(this.value)
+                usrFind(this.value)
             });
 
 
             // reference a list
             let vTreelist=vzTreelist({
-                DocElement: "#organizationlist",
-                Object: "Organization",
-                Key: "OrgKey",
+                DocElement: "#userlist",
+                Object: "UserProxy",
+                Key: "UsrKey",
                 Children: "List",
-                Search: "OrgName",
+                Search: "UsrName",
                 OnFormat: formatObject,
                 OnEvent: rowEvent
             });
             // The list callback formatting function
             function formatObject(d) {
-                let vText = `<span class="stop bold">${d.OrgName}</span>`;
-                vText += `<span class="stop"> (${d.OrgKey} - ${d.OrgParent})</span>`;
+                let vText = `<span class="bold">${d.UsrName} ${d.UsrSurname}</span>`;
+                vText += `<span class="email">${d.UsrEmail}</span>`;
+                vText += `<span class="phone">${d.UsrPhone}</span>`;
                 return vText;
             }
             // Handle a row event (like a row click)
@@ -144,26 +145,26 @@
                         window.location = `#`;
                         break;
                     case "add": 
-                        window.location = `create.html?parent=${aEvent.data.OrgKey}`;
+                        window.location = `create.html?parent=${aEvent.data.usrkey}`;
                         break;
                     case "edit": 
-                        window.location = `update.html?orgkey=${aEvent.data.OrgKey}`;
+                        window.location = `update.html?usrkey=${aEvent.data.usrkey}`;
                         break;
                     case "delete": 
-                        window.location = `delete.html?orgkey=${aEvent.data.OrgKey}`;
+                        window.location = `delete.html?usrkey=${aEvent.data.usrkey}`;
                         break;
                     default:
-                    vPopupDialog.open({modal: false, type: "info", message: {title: "Organization Action", status: "0", message:`Unknown action '${aEvent.event}'`}});
+                    vPopupDialog.open({modal: false, type: "info", message: {title: "User Action", status: "0", message:`Unknown action '${aEvent.event}'`}});
                 }
             }
-            // render a organization list 
+            // render a user list 
             function renderList(aData) {
                 vTreelist.update(aData.List);
             }
-            // load a organization list
+            // load a user list
             function loadList() {
-                vLoader.start("Please be patient. Loading organizations...");
-                vzFetchJson("/organization", "GET")
+                vLoader.start("Please be patient. Loading users...");
+                vzFetchJson("/user", "GET")
                 .then(function(data) {
                     renderList(data);
                     vLoader.stop();
@@ -171,13 +172,13 @@
                 .catch(function(error) {
                     vLoader.stop();
                     if (error.status === 401) {
-                        window.location = "/account/login.html?passthru=/master/organization/list.html"
+                        window.location = "/account/login.html?passthru=/master/user/list.html"
                     } else {
                         vPopupDialog.open({modal:true, type:error.title, message:error.message});
                     };
                 }) 
             }
-            // initiate a organization load
+            // initiate a user load
             loadList()
         </script>
     </body>

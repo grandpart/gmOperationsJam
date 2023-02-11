@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Delete Organization</title>
-        <meta name="description" content="Delete an existing Organization from your portfolio">
+        <meta name="description" content="Delete an Organization">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name=viewport content="width=device-width, initial-scale=1">
         
@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="../../styles/vzButtons.css">
         <link rel="stylesheet" href="../../styles/nav.css">
         <link rel="stylesheet" href="../../styles/pages.css">
+        <link rel="stylesheet" href="../../styles/vzForms.css">
         <link rel="stylesheet" href="../../styles/vzBanner.css">
         <link rel="stylesheet" href="../../styles/vzLoader.css">
         <link rel="stylesheet" href="../../styles/vzPopupDialog.css">
@@ -25,33 +26,32 @@
         
     </head>
     <body>
-        <body style=position:relative;>
-            <div id="wait-overlay" style="display:none"></div>
-            <div id="wait-loader" class="waitloader"></div>
-            <div id="popup-dialog" class="popupdialog"></div>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+
+        <header id="header"></div></header>
     
-            <header id="header"></div></header>
-    
-            <main>
-                <div class="content">
-                    
-                    <div class="nav-links">
-                        <a class="nav-item" href="../../index.html"><span aria-hidden="true">&#x25A0;</span>Home</a>
-                        <a class="nav-item" href="../index.html"><span aria-hidden="true">&gt;</span>Masters</a>
-                        <a class="nav-item " href="index.html"><span aria-hidden="true">&gt;</span>Organizations</a>
-                        <a class="nav-item active" href="#"><span aria-hidden="true">&gt;</span>Delete</a>
-                    </div>
-                <h1>Delete Organization</h1>
-                <p>Press the "Delete" button to permanently delete an organization.</p>
+        <main>
+            <div class="content">
                 
-                <div class="form">
-                    <form id="form" novalidate >
+                <div class="nav-links">
+                    <a class="nav-item" href="../../index.html">Home</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item" href="../index.html">Masters</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item" href="list.html">Organizations</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item active" href="#">Delete</a>
+                </div>
+            <h1>Update Organization</h1>
+            <p>Press the "Delete" button to permanently delete an Organization.</p>
+                
+            <div class="form">
+                <form id="form" novalidate >
                         <div class="inputlist">
                             <div class="labelwrapper">
-                                <label for="name">Name</label>
+                                <label for="OrgName">Name</label>
                             </div>
                             <div class="inputwrapper">
-                                <input type="text" id="orgname" name="orgname" readonly />
+                                <input type="text" id="OrgName" name="OrgName" readonly />
                             </div>                                
                         </div>
                     </form>
@@ -104,13 +104,17 @@
             // Bind button delete event
             document.getElementById("btnDelete").addEventListener("click", function(e) {
                 deleteOrganization();
-            });
+            });          
+            // Show an Organization
+            function showOrganization(aOrganization) {
+                document.getElementById("OrgName").value = aOrganization.OrgName;
+            }
             // Load an Organization
             function loadOrganization() {
                 // GET organization
                 vzFetchJson(`/organization/${vOrgKey}`, "GET")
                 .then(function(data) {
-                    document.getElementById("orgname").value = data.data.orgname;
+                    showOrganization(data);
                     vLoader.stop();
                 })
                 .catch(function(error) {
