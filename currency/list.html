@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Currency List</title>
+        <meta name="description" content="Manage Currencies">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        
+        <link rel="stylesheet" href="../../styles/global.css">
+        <link rel="stylesheet" href="../../styles/vzButtons.css">
+        <link rel="stylesheet" href="../../styles/nav.css">
+        <link rel="stylesheet" href="../../styles/pages.css">
+        <link rel="stylesheet" href="../../styles/vzBanner.css">
+        <link rel="stylesheet" href="../../styles/vzTreelist.css">
+        <link rel="stylesheet" href="../../styles/vzDragdialog.css">
+        <link rel="stylesheet" href="../../styles/vzLoader.css">
+        <link rel="stylesheet" href="../../styles/vzPopupDialog.css">
+        
+        <script src="../../libraries/d3.min.js"></script> 
+        <script src="../../scripts/vzUtils.js"></script> 
+        <script src="../../scripts/vzLoader.js"></script> 
+        <script src="../../scripts/vzFetchPromise.js"></script> 
+        <script src="../../scripts/vzPopupDialog.js"></script> 
+        <script src="../../scripts/vzBanner.js"></script>
+        <script src="../../scripts/vzBannerData.js"></script>
+        <script src="../../scripts/vzFooter.js"></script> 
+        <script src="../../scripts/vzTreelist.js"></script>
+
+    </head>
+    <body>
+        <div id="wait-overlay" style="display:none"></div>
+        <div id="wait-loader" class="waitloader"></div>
+        <div id="popup-dialog" class="popupdialog"></div>
+
+        <header id="header"></div></header>
+
+        <main>
+            <div class="content">
+                
+                <div class="nav-links">
+                    <a class="nav-item" href="../../index.html">Home</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item" href="../index.html">Masters</a><span aria-hidden="true">&#8594;</span>
+                    <a class="nav-item active" href="#">Currencies</a>
+                </div>
+                <h1>Currency List</h1>
+                <p>Manage the currency tree.</p>
+                    
+                <div class="pure-button-group" role="group" aria-label="Database Control">
+                    <button type="button" id="btnAdd" class="pure-button medium bold insert">
+                        <span>Add currency</span>
+                    </button>
+                    <button type="button" id="btnExpand" class="pure-button medium expand">
+                        <span>Expand All</span>
+                    </button>
+                    <button type="button" id="btnCollapse" class="pure-button medium collapse">
+                        <span>Collapse All</span>
+                    </button>                    
+                </div>
+                <form id="form" novalidate >
+                    <div class="inputlist">
+                        <div class="labelwrapper required">
+                            <label for="inpFind">Find</label>
+                        </div>
+                        <div class="inputwrapper">
+                            <input type="text" id="inpFind" name="inpFind" />
+                        </div>
+                            
+                    </div>
+                </form>
+                <div class="treelist currencylist" id="currencylist"></div>
+            </div>
+        </main>
+
+        <footer id="footer"></footer>
+
+        <script>
+            // Header and footer  
+            vzBanner({
+                docElement: "#header",
+                title: "Torq",
+                url: "url",
+                caption: "caption",
+                children: "children"}).update(vzBannerData);                          
+            vzFooter({docElement: "#footer"})
+            // initiate a loader
+            let vLoader = vzLoader({
+                docLoader: document.getElementById("wait-loader"),
+                docOverlay: document.getElementById("wait-overlay")
+            });
+            // initiate a popup dialog
+            let vPopupDialog = vzPopupDialog({
+                docPopup: document.getElementById("popup-dialog"),
+                docOverlay: document.getElementById("wait-overlay"),
+                onEvent: popupEvent
+            });
+            function popupEvent(aEvent) {
+                vPopupDialog.close();
+            }
+            // Bind button events
+            document.getElementById("btnAdd").addEventListener("click", function(e) {
+                window.location = `create.html?parent=0`;
+            });
+            document.getElementById("btnExpand").addEventListener("click", function(e) {
+                vTreelist.expandall();
+            });
+            document.getElementById("btnCollapse").addEventListener("click", function(e) {
+                vTreelist.collapseall();
+            });
+            // bind find event            
+            function usrFind(aString) {
+                // Don't perform a search for argument length less than 2 characters
+                if (aString === null || aString.length < 2) {
+                    return;
+                }
+                vTreelist.find(aString);
+            }
+            document.getElementById("inpFind").addEventListener("input", function(e) {
+                vTreelist.clearfind();
+                usrFind(this.value)
+            });
+
+
+            // reference a list
+            let vTreelist=vzTreelist({
+                DocElement: "#currencylist",
+                Object: "Currency",
+                Key: "CurKey",
+                Children: "List",
+                Search: "CurName",
+                OnFormat: formatObject,
+                OnEvent: rowEvent
+            });
+            // The list callback formatting function
+            function formatObject(d) {
+                let vText = `<span class="bold">${d.CurName} </span>`;
+                vText += `<span class="bold">${d.CurPrefix} </span>`;
+                vText += `<span class="bold">${d.CurCode}</span>`;
+                return vText;
+            }
+            // Handle a row event (like a row click)
+            function rowEvent(aEvent) {
+                switch(aEvent.event) {
+                    case "select": 
+                        window.location = `#`;
+                        break;
+                    case "add": 
+                        window.location = `create.html?parent=${aEvent.data.curkey}`;
+                        break;
+                    case "edit": 
+                        window.location = `update.html?curkey=${aEvent.data.curkey}`;
+                        break;
+                    case "delete": 
+                        window.location = `delete.html?curkey=${aEvent.data.curkey}`;
+                        break;
+                    default:
+                    vPopupDialog.open({modal: false, type: "info", message: {title: "User Action", status: "0", message:`Unknown action '${aEvent.event}'`}});
+                }
+            }
+            // render a user list 
+            function renderList(aData) {
+                vTreelist.update(aData.List);
+            }
+            // load a user list
+            function loadList() {
+                vLoader.start("Please be patient. Loading currencies...");
+                vzFetchJson("/currency", "GET")
+                .then(function(data) {
+                    renderList(data);
+                    vLoader.stop();
+                })
+                .catch(function(error) {
+                    vLoader.stop();
+                    if (error.status === 401) {
+                        window.location = "/account/login.html?passthru=/master/user/list.html"
+                    } else {
+                        vPopupDialog.open({modal:true, type:error.title, message:error.message});
+                    };
+                }) 
+            }
+            // initiate a user load
+            loadList()
+        </script>
+    </body>
+</html>
